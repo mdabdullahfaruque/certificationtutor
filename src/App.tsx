@@ -1,188 +1,77 @@
 import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
 import { Toaster } from '@/components/ui/sonner'
-import { Dashboard } from '@/components/Dashboard'
-import { StudyPlan } from '@/components/StudyPlan'
-import { StudyCards } from '@/components/StudyCards'
-import { PracticeExam } from '@/components/PracticeExam'
-import { PDFUpload } from '@/components/PDFUpload'
-import { SquaresFour, BookOpen, ClipboardText, Upload, Sparkle } from '@phosphor-icons/react'
-import { UserProgress, Topic, ExamResult, DailyGoal } from '@/lib/types'
+import { Sparkle, House, BookOpen, ClipboardText, Upload as UploadIcon } from '@phosphor-icons/react'
+import { UserProgress } from '@/lib/types'
+import { AZ204_DOMAINS } from '@/lib/az204-domains'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
+
+import { DashboardView } from '@/components/DashboardView'
+import { StudyView } from '@/components/StudyView'
+import { PracticeView } from '@/components/PracticeView'
+import { UploadView } from '@/components/UploadView'
 
 function App() {
-  const [progress, setProgress] = useKV<UserProgress>('user-progress', {
+  const [progress, setProgress] = useKV<UserProgress>('user-progress-v2', {
     examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     currentDay: 1,
     streak: 0,
+    lastVisit: new Date().toISOString(),
     totalPoints: 0,
+    level: 1,
     completedTopics: [],
     masteredDomains: [],
     weakAreas: [],
     dailyGoals: [],
-    sessions: []
+    sessions: [],
+    cardReviews: {},
+    topicProgress: {},
   })
 
-  const [examResults, setExamResults] = useKV<ExamResult[]>('exam-results', [])
-  const [currentView, setCurrentView] = useState<'list' | 'cards'>('list')
-  const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null)
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   useEffect(() => {
-    const lastVisit = localStorage.getItem('lastVisit')
-    const today = new Date().toDateString()
-    
-    if (lastVisit !== today) {
-      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString()
-      
+    if (!progress) return
+
+    const lastVisit = new Date(progress.lastVisit)
+    const today = new Date()
+    const daysDiff = Math.floor((today.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (daysDiff >= 1) {
       setProgress((current) => {
-        if (!current) return {
-          examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          currentDay: 1,
-          streak: 1,
-          totalPoints: 0,
-          completedTopics: [],
-          masteredDomains: [],
-          weakAreas: [],
-          dailyGoals: [],
-          sessions: []
+        if (!current) return progress
+
+        const newStreak = daysDiff === 1 ? current.streak + 1 : 1
+        
+        if (daysDiff === 1) {
+          toast.success(`🔥 ${newStreak} day streak!`, {
+            description: 'Keep up the great work!'
+          })
         }
+
         return {
           ...current,
-          streak: lastVisit === yesterday ? current.streak + 1 : 1
+          lastVisit: today.toISOString(),
+          streak: newStreak,
         }
       })
-      
-      localStorage.setItem('lastVisit', today)
-    }
-  }, [setProgress])
-
-  useEffect(() => {
-    if (progress && progress.dailyGoals.length === 0) {
-      generateStudyPlan()
     }
   }, [])
 
-  const generateStudyPlan = () => {
-    const goals: DailyGoal[] = []
-    const startDate = new Date()
-    
-    for (let day = 1; day <= 30; day++) {
-      const date = new Date(startDate)
-      date.setDate(date.getDate() + day - 1)
-      
-      goals.push({
-        day,
-        date: date.toISOString(),
-        topics: [`topic-${day}`],
-        questionsTarget: 10,
-        completed: false
-      })
-    }
-    
-    setProgress((current) => {
-      if (!current) return {
-        examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        currentDay: 1,
-        streak: 0,
-        totalPoints: 0,
-        completedTopics: [],
-        masteredDomains: [],
-        weakAreas: [],
-        dailyGoals: goals,
-        sessions: []
-      }
-      return {
-        ...current,
-        dailyGoals: goals
-      }
-    })
-  }
-
-  const handleTopicComplete = () => {
-    if (!selectedTopic) return
-
-    setProgress((current) => {
-      if (!current) return {
-        examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        currentDay: 1,
-        streak: 0,
-        totalPoints: selectedTopic.difficulty * 50,
-        completedTopics: [selectedTopic.id],
-        masteredDomains: [],
-        weakAreas: [],
-        dailyGoals: [],
-        sessions: []
-      }
-      
-      const newCompleted = [...current.completedTopics]
-      if (!newCompleted.includes(selectedTopic.id)) {
-        newCompleted.push(selectedTopic.id)
-        
-        const pointsEarned = selectedTopic.difficulty * 50
-        const newTotal = current.totalPoints + pointsEarned
-        
-        toast.success(`🎉 Topic completed! +${pointsEarned} points`, {
-          description: `You now have ${newTotal} total points`
-        })
-        
-        return {
-          ...current,
-          completedTopics: newCompleted,
-          totalPoints: newTotal
-        }
-      }
-      return current
-    })
-    
-    setSelectedTopic(null)
-    setCurrentView('list')
-  }
-
-  const handleSelectTopic = (topic: Topic) => {
-    setSelectedTopic(topic)
-    setCurrentView('cards')
-  }
-
-  const handleExamComplete = (result: ExamResult) => {
-    setExamResults((current) => [...(current || []), result])
-    
-    setProgress((current) => {
-      const pointsEarned = Math.round(result.score * 10)
-      
-      if (!current) return {
-        examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        currentDay: 1,
-        streak: 0,
-        totalPoints: pointsEarned,
-        completedTopics: [],
-        masteredDomains: [],
-        weakAreas: [],
-        dailyGoals: [],
-        sessions: []
-      }
-      
-      return {
-        ...current,
-        totalPoints: current.totalPoints + pointsEarned
-      }
-    })
-    
-    if (result.passed) {
-      toast.success('🏆 Exam Passed!', {
-        description: `You scored ${Math.round(result.score)}%. Great job!`
-      })
-    } else {
-      toast.error('Keep practicing!', {
-        description: `You scored ${Math.round(result.score)}%. You need 70% to pass.`
-      })
-    }
-  }
+  const daysUntilExam = progress ? Math.max(0, Math.ceil(
+    (new Date(progress.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+  )) : 30
 
   if (!progress) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-mesh">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading your progress...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -197,19 +86,23 @@ function App() {
                 <Sparkle size={24} weight="fill" className="text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">AZ-204 Prep</h1>
-                <p className="text-xs text-muted-foreground">Master Azure Development</p>
+                <h1 className="text-xl font-bold">AZ-204 Exam Mastery</h1>
+                <p className="text-xs text-muted-foreground">AI-Powered Azure Certification Prep</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="text-sm text-muted-foreground">Streak</div>
-                <div className="text-lg font-bold text-accent">🔥 {progress.streak} days</div>
+            <div className="flex items-center gap-6">
+              <div className="text-right hidden sm:block">
+                <div className="text-xs text-muted-foreground">Exam in</div>
+                <div className="text-lg font-bold text-primary">{daysUntilExam} days</div>
               </div>
               <div className="text-right">
-                <div className="text-sm text-muted-foreground">Points</div>
-                <div className="text-lg font-bold text-primary">{progress.totalPoints}</div>
+                <div className="text-xs text-muted-foreground">Streak</div>
+                <div className="text-lg font-bold text-accent">🔥 {progress.streak}</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Level</div>
+                <div className="text-lg font-bold text-primary">{progress.level}</div>
               </div>
             </div>
           </div>
@@ -217,68 +110,74 @@ function App() {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {currentView === 'cards' && selectedTopic ? (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <StudyCards
-              topic={selectedTopic}
-              onComplete={handleTopicComplete}
-              onBack={() => {
-                setSelectedTopic(null)
-                setCurrentView('list')
-              }}
-            />
-          </motion.div>
-        ) : (
-          <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-14">
-              <TabsTrigger value="dashboard" className="flex flex-col gap-1">
-                <SquaresFour size={20} />
-                <span className="text-xs">Dashboard</span>
-              </TabsTrigger>
-              <TabsTrigger value="study" className="flex flex-col gap-1">
-                <BookOpen size={20} />
-                <span className="text-xs">Study</span>
-              </TabsTrigger>
-              <TabsTrigger value="practice" className="flex flex-col gap-1">
-                <ClipboardText size={20} />
-                <span className="text-xs">Practice</span>
-              </TabsTrigger>
-              <TabsTrigger value="upload" className="flex flex-col gap-1">
-                <Upload size={20} />
-                <span className="text-xs">Upload</span>
-              </TabsTrigger>
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-14">
+            <TabsTrigger value="dashboard" className="flex flex-col gap-1">
+              <House size={20} />
+              <span className="text-xs">Dashboard</span>
+            </TabsTrigger>
+            <TabsTrigger value="study" className="flex flex-col gap-1">
+              <BookOpen size={20} />
+              <span className="text-xs">Study</span>
+            </TabsTrigger>
+            <TabsTrigger value="practice" className="flex flex-col gap-1">
+              <ClipboardText size={20} />
+              <span className="text-xs">Practice</span>
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="flex flex-col gap-1">
+              <UploadIcon size={20} />
+              <span className="text-xs">Upload</span>
+            </TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="dashboard" className="space-y-6">
-              <Dashboard progress={progress} />
-            </TabsContent>
+          <TabsContent value="dashboard" className="space-y-6">
+            <DashboardView progress={progress} setProgress={setProgress} />
+          </TabsContent>
 
-            <TabsContent value="study" className="space-y-6">
-              <StudyPlan
-                completedTopics={progress.completedTopics}
-                onSelectTopic={handleSelectTopic}
-              />
-            </TabsContent>
+          <TabsContent value="study" className="space-y-6">
+            <StudyView progress={progress} setProgress={setProgress} />
+          </TabsContent>
 
-            <TabsContent value="practice" className="space-y-6">
-              <PracticeExam onComplete={handleExamComplete} />
-            </TabsContent>
+          <TabsContent value="practice" className="space-y-6">
+            <PracticeView progress={progress} setProgress={setProgress} />
+          </TabsContent>
 
-            <TabsContent value="upload" className="space-y-6">
-              <PDFUpload />
-            </TabsContent>
-          </Tabs>
-        )}
+          <TabsContent value="upload" className="space-y-6">
+            <UploadView progress={progress} setProgress={setProgress} />
+          </TabsContent>
+        </Tabs>
       </main>
 
-      <footer className="border-t mt-20 py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>AZ-204 Azure Developer Associate Certification Prep</p>
-          <p className="mt-2">Study smart, not hard. Good luck on your exam! 🚀</p>
+      <footer className="border-t mt-20 py-8 bg-background/50 backdrop-blur-sm">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div>
+              <h3 className="font-semibold mb-2">About AZ-204</h3>
+              <p className="text-sm text-muted-foreground">
+                Microsoft Azure Developer Associate certification validates your expertise in designing, 
+                building, testing, and maintaining cloud applications.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Exam Coverage</h3>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                {AZ204_DOMAINS.map(domain => (
+                  <li key={domain.id}>• {domain.name} ({domain.weight})</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">Study Tips</h3>
+              <p className="text-sm text-muted-foreground">
+                Practice daily, focus on hands-on scenarios, and review weak areas regularly. 
+                This platform uses AI to generate personalized content tailored to the official exam objectives.
+              </p>
+            </div>
+          </div>
+          <div className="text-center text-sm text-muted-foreground border-t pt-6">
+            <p>AI-Powered Azure AZ-204 Certification Prep Platform</p>
+            <p className="mt-2">Study smart. Practice hard. Pass confidently. 🚀</p>
+          </div>
         </div>
       </footer>
     </div>
