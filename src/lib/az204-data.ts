@@ -6,35 +6,101 @@ export const AZ204_DOMAINS: AZ204Domain[] = [
     name: 'Develop Azure compute solutions',
     weight: '25-30%',
     description: 'Implement containerized solutions, Azure App Service, and Azure Functions',
-    topics: ['Azure Container Instances', 'Azure Container Apps', 'App Service', 'Azure Functions']
+    topics: [
+      'Implement containerized solutions',
+      'Azure Container Registry',
+      'Azure Container Instances', 
+      'Azure Container Apps',
+      'Create and configure Azure App Service',
+      'App Service plans and scaling',
+      'Deploy apps using deployment slots',
+      'Configure app settings and connection strings',
+      'Enable diagnostics logging',
+      'Implement Azure Functions',
+      'Function triggers and bindings',
+      'Durable Functions patterns',
+      'Function app configuration and scaling'
+    ]
   },
   {
     id: 'develop-storage',
     name: 'Develop for Azure storage',
     weight: '15-20%',
     description: 'Work with Cosmos DB, Blob Storage, and Azure Storage',
-    topics: ['Cosmos DB', 'Blob Storage', 'Azure Storage', 'Storage Security']
+    topics: [
+      'Develop solutions using Azure Cosmos DB',
+      'Cosmos DB partitioning strategies',
+      'Consistency levels',
+      'Change feed and triggers',
+      'Stored procedures and UDFs',
+      'Develop solutions using Blob storage',
+      'Set and retrieve blob properties',
+      'Blob lifecycle management',
+      'Hot, Cool, and Archive tiers',
+      'Shared Access Signatures (SAS)',
+      'Azure Storage encryption',
+      'Implement storage redundancy'
+    ]
   },
   {
     id: 'implement-security',
     name: 'Implement Azure security',
     weight: '20-25%',
     description: 'Secure solutions with Key Vault, Managed Identities, and App Configuration',
-    topics: ['Microsoft Identity', 'Key Vault', 'Managed Identities', 'App Configuration']
+    topics: [
+      'Implement user authentication with Microsoft Identity',
+      'Microsoft Authentication Library (MSAL)',
+      'OAuth 2.0 and OpenID Connect',
+      'Shared Access Signatures',
+      'Microsoft Graph API integration',
+      'Implement secure Azure solutions',
+      'Azure Key Vault secrets and certificates',
+      'Managed identities (system and user-assigned)',
+      'App Configuration and Key Vault references',
+      'Azure RBAC and custom roles',
+      'Implement security in Azure Functions',
+      'Secure app settings and connection strings'
+    ]
   },
   {
     id: 'monitor-optimize',
     name: 'Monitor, troubleshoot, and optimize',
     weight: '15-20%',
     description: 'Implement caching, Application Insights, and CDN',
-    topics: ['Azure Cache for Redis', 'Application Insights', 'CDN']
+    topics: [
+      'Implement caching for solutions',
+      'Azure Cache for Redis',
+      'CDN caching strategies',
+      'Troubleshoot solutions using Application Insights',
+      'Configure instrumentation',
+      'Analyze logs and metrics',
+      'Implement distributed tracing',
+      'Application Map and dependency tracking',
+      'Query logs using Kusto (KQL)',
+      'Implement autoscaling',
+      'Configure alerts and action groups'
+    ]
   },
   {
     id: 'connect-consume',
     name: 'Connect to and consume Azure services',
     weight: '15-20%',
     description: 'Work with API Management, Event Grid, Service Bus, and Event Hubs',
-    topics: ['API Management', 'Event Grid', 'Event Hubs', 'Service Bus', 'Azure Queue Storage']
+    topics: [
+      'Implement API Management',
+      'Create and configure APIs',
+      'Implement policies for rate limiting',
+      'Secure APIs using subscriptions and certificates',
+      'Develop event-based solutions',
+      'Azure Event Grid schema and topics',
+      'Event Grid event handlers',
+      'Azure Event Hubs for big data streaming',
+      'Event Hubs consumer groups and partitions',
+      'Develop message-based solutions',
+      'Azure Service Bus queues and topics',
+      'Service Bus message sessions and dead-letter queues',
+      'Azure Queue Storage operations'
+    ]
   }
 ]
 
