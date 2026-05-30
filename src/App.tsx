@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useKV } from '@github/spark/hooks'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
-import { Sparkle, House, BookOpen, ClipboardText, Upload as UploadIcon } from '@phosphor-icons/react'
+import { Sparkle, House, BookOpen, ClipboardText, Upload as UploadIcon, BookBookmark } from '@phosphor-icons/react'
 import { UserProgress } from '@/lib/types'
 import { AZ204_DOMAINS } from '@/lib/az204-domains'
 import { toast } from 'sonner'
@@ -11,6 +11,7 @@ import { DashboardView } from '@/components/DashboardView'
 import { StudyView } from '@/components/StudyView'
 import { PracticeView } from '@/components/PracticeView'
 import { UploadView } from '@/components/UploadView'
+import { CheatSheetsView } from '@/components/CheatSheetsView'
 
 function App() {
   const [progress, setProgress] = useKV<UserProgress>('user-progress-v2', {
@@ -111,7 +112,7 @@ function App() {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 h-14">
+          <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 h-14">
             <TabsTrigger value="dashboard" className="flex flex-col gap-1">
               <House size={20} />
               <span className="text-xs">Dashboard</span>
@@ -119,6 +120,10 @@ function App() {
             <TabsTrigger value="study" className="flex flex-col gap-1">
               <BookOpen size={20} />
               <span className="text-xs">Study</span>
+            </TabsTrigger>
+            <TabsTrigger value="cheatsheets" className="flex flex-col gap-1">
+              <BookBookmark size={20} />
+              <span className="text-xs">Cheat Sheets</span>
             </TabsTrigger>
             <TabsTrigger value="practice" className="flex flex-col gap-1">
               <ClipboardText size={20} />
@@ -136,6 +141,10 @@ function App() {
 
           <TabsContent value="study" className="space-y-6">
             <StudyView progress={progress} setProgress={setProgress} />
+          </TabsContent>
+
+          <TabsContent value="cheatsheets" className="space-y-6">
+            <CheatSheetsView />
           </TabsContent>
 
           <TabsContent value="practice" className="space-y-6">
