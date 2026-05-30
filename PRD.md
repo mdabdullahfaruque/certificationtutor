@@ -1,75 +1,59 @@
-# AZ-204 AI-Powered Exam Mastery Platform
+# AZ-204 Exam Prep Platform
 
-A comprehensive, AI-powered Azure AZ-204 certification prep platform that generates dynamic study content, practice questions, and real exam scenarios on-demand. No static data - every topic, flashcard, and question is generated using AI to match official Microsoft exam objectives.
+A practical Azure AZ-204 certification prep platform that stores exam questions in markdown format and allows PDF import for practice. Questions are stored as plain markdown files for easy management and version control.
 
 **Experience Qualities**:
-1. **Effortless** - Learning happens naturally through bite-sized interactive content, not grueling study sessions
-2. **Addictive** - Gamification, streaks, and progress visualization make you want to come back daily
-3. **Practical** - Real-world scenarios and hands-on learning that stick in memory better than passive reading
+1. **Practical** - Upload real exam PDFs and practice immediately without complex setup
+2. **Straightforward** - Questions stored in simple markdown format you can edit directly
+3. **Focused** - No fluff, just import questions and practice them
 
-**Complexity Level**: Complex Application (advanced functionality, likely with multiple views)
-This is a comprehensive learning management system with multiple interconnected features: content management, progress tracking, interactive quizzes, study plans, PDF parsing, spaced repetition algorithms, and analytics dashboards.
+**Complexity Level**: Light Application (multiple features with basic state)
+This is a focused exam practice tool with PDF import, markdown-based question storage, and practice exam functionality.
 
 ## Essential Features
 
-### 1. Smart Study Plan Generator
-- **Functionality**: Creates personalized 30-day study roadmap based on AZ-204 exam domains
-- **Purpose**: Breaks overwhelming content into manageable daily goals, eliminating decision fatigue
-- **Trigger**: User sets target exam date on first visit
-- **Progression**: Select exam date → AI generates daily schedule → View today's tasks → Complete activities → Mark complete → See progress
-- **Success criteria**: User can see exactly what to study each day with time estimates and completion tracking
+### 1. Markdown Question Database
+- **Functionality**: Questions stored in a simple markdown file (questions-database.md) in structured format
+- **Purpose**: Easy to edit, version control, and manage without complex database setup
+- **Trigger**: Questions are automatically loaded from the file when the app starts
+- **Progression**: Edit markdown file → Save → Reload app → Practice updated questions
+- **Success criteria**: App successfully parses and displays all questions from the markdown file
 
-### 2. Interactive Learning Cards
-- **Functionality**: Bite-sized flashcard-style content for each AZ-204 topic with code examples
-- **Purpose**: Makes learning digestible and mobile-friendly for developers on the go
-- **Trigger**: User clicks on a topic in the study plan
-- **Progression**: Open topic → Swipe through cards → Flag difficult ones → Test knowledge → Move to next topic
-- **Success criteria**: All exam topics covered in card format with syntax-highlighted code and visual diagrams
+### 2. PDF Import & AI Extraction
+- **Functionality**: Paste PDF text content and AI extracts questions into markdown format
+- **Purpose**: Quickly import questions from Udemy PDFs and other study materials
+- **Trigger**: User clicks "Upload" tab and pastes PDF content
+- **Progression**: Copy PDF text → Paste into form → Click Extract → AI parses questions → Download/copy generated markdown → Append to questions-database.md → Refresh → Practice
+- **Success criteria**: AI successfully extracts questions from PDF text and formats them as markdown
 
-### 3. Practice Exam Simulator
-- **Functionality**: Timed practice tests that mirror real AZ-204 exam format
-- **Purpose**: Builds confidence and identifies weak areas before the actual exam
-- **Trigger**: User clicks "Practice Exam" or completes a topic section
-- **Progression**: Select exam mode (practice/timed) → Answer questions → Get instant feedback → Review mistakes → See score breakdown by domain
-- **Success criteria**: Realistic exam experience with explanations for all answers and performance analytics
+### 3. Practice Exam Mode
+- **Functionality**: Practice questions from the database with instant feedback
+- **Purpose**: Test knowledge and identify weak areas through realistic exam simulation
+- **Trigger**: User clicks "Practice" tab and selects domain or "Practice All"
+- **Progression**: Select domain/all → 10 random questions loaded → Answer question → Check answer → See explanation → Next question → View score
+- **Success criteria**: Users can practice questions, see immediate feedback, and track their scores
 
-### 4. PDF Upload & Auto-Parser
-- **Functionality**: Uploads Udemy course PDFs and automatically extracts questions/answers into the system
-- **Purpose**: Eliminates manual data entry and integrates existing study materials seamlessly
-- **Trigger**: User clicks "Upload Materials" button
-- **Progression**: Drop PDF files → AI extracts Q&A → Review parsed content → Approve/edit → Questions added to practice pool
-- **Success criteria**: Successfully parses question-answer pairs from PDF with 85%+ accuracy
+### 4. Domain Filtering
+- **Functionality**: Filter questions by Azure domain (compute, storage, security, monitoring, integration)
+- **Purpose**: Focus practice on specific exam domains
+- **Trigger**: User selects a domain card in Practice view
+- **Progression**: View available domains → See question count per domain → Select domain → Practice questions from that domain only
+- **Success criteria**: Questions are correctly filtered by domain and users can practice specific areas
 
-### 5. Progress Dashboard
-- **Functionality**: Visual analytics showing study streaks, topic mastery, weak areas, and readiness score
-- **Purpose**: Motivates continued learning and provides clarity on exam readiness
-- **Trigger**: User opens app or completes any learning activity
-- **Progression**: Complete activities → Earn points/badges → See stats update → Get recommendations → Share achievements
-- **Success criteria**: Clear visualization of progress with actionable next steps and motivational feedback
-
-### 6. Scenario Master
-- **Functionality**: Interactive scenario-based questions with step-by-step guided solutions
-- **Purpose**: Teaches problem-solving approach for complex exam scenarios that trip up most candidates
-- **Trigger**: User encounters scenario question or selects "Scenarios" section
-- **Progression**: Read scenario → Identify key requirements → Eliminate wrong answers → Get hints → See detailed explanation → Practice similar
-- **Success criteria**: Users can confidently approach scenario questions with a systematic framework
-
-### 7. Spaced Repetition System
-- **Functionality**: Automatically resurfaces difficult topics and questions at optimal intervals
-- **Purpose**: Ensures long-term retention using proven memory science
-- **Trigger**: System schedules reviews based on performance
-- **Progression**: Study topic → Rate difficulty → System schedules next review → Get reminded → Review content → Repeat
-- **Success criteria**: Topics are automatically reviewed before being forgotten, improving retention rates
+### 5. Progress Tracking
+- **Functionality**: Track practice sessions, scores, and streaks
+- **Purpose**: Maintain motivation and see improvement over time
+- **Trigger**: Completing practice sessions
+- **Progression**: Complete practice → Score recorded → Points earned → Streak updated → Dashboard shows progress
+- **Success criteria**: Progress persists between sessions using KV storage
 
 ## Edge Case Handling
 
-- **Incomplete Daily Goals**: Show encouraging message with option to extend deadline or adjust pace
-- **PDF Parsing Failures**: Allow manual question entry with simple form interface
-- **No Progress for 3+ Days**: Send friendly reminder notification with fun fact about Azure
-- **100% Complete Before Exam Date**: Unlock "Master Mode" with harder questions and advanced scenarios
-- **Failed Practice Exam (<70%)**: Show supportive message with targeted study recommendations for weak domains
-- **Duplicate Questions from PDF**: Automatically detect and merge, flagging for user review
-- **Offline Usage**: Cache downloaded content for offline study, sync progress when online
+- **Empty Database**: Show helpful message with instructions to import questions from PDFs
+- **PDF Parsing Failures**: Provide clear error messages and example format guidance
+- **Malformed Markdown**: Skip invalid questions and log warnings in console
+- **No Questions for Domain**: Show message and suggest practicing all questions instead
+- **Duplicate Questions**: AI should detect and merge duplicates during extraction
 
 ## Design Direction
 

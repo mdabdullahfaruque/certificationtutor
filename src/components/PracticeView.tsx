@@ -1,14 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Play, CheckCircle, XCircle, Clock } from '@phosphor-icons/react'
-import { UserProgress, Question, ExamResult } from '@/lib/types'
-import { AZ204_DOMAINS } from '@/lib/az204-domains'
-import { generatePracticeQuestions } from '@/lib/content-generator'
+import { Play, CheckCircle, XCircle, FileText, Sparkle, ArrowLeft } from '@phosphor-icons/react'
+import { UserProgress, Question } from '@/lib/types'
+import { loadQuestionsFromMarkdown } from '@/lib/questions-db'
 import { toast } from 'sonner'
 
 interface PracticeViewProps {
@@ -17,45 +16,68 @@ interface PracticeViewProps {
 }
 
 export function PracticeView({ progress, setProgress }: PracticeViewProps) {
-  const [examMode, setExamMode] = useState<'practice' | 'exam' | null>(null)
+  const [allQuestions, setAllQuestions] = useState<Question[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showExplanation, setShowExplanation] = useState(false)
   const [answers, setAnswers] = useState<(number | null)[]>([])
   const [examComplete, setExamComplete] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [practicingAll, setPracticingAll] = useState(false)
 
-  const startPractice = async (domain: string) => {
+  useEffect(() => {
+    loadQuestions()
+  }, [])
+
+  const loadQuestions = async () => {
     setLoading(true)
     try {
-      const domainObj = AZ204_DOMAINS.find(d => d.id === domain)
-      if (!domainObj) return
-
-      const generatedQuestions = await generatePracticeQuestions(
-        domain,
-        domainObj.topics[0],
-        domainObj.name,
-        domain,
-        10
-      )
+      const loaded = await loadQuestionsFromMarkdown()
+      setAllQuestions(loaded)
       
-      setQuestions(generatedQuestions)
-      setAnswers(new Array(generatedQuestions.length).fill(null))
-      setExamMode('practice')
-      setCurrentIndex(0)
-      setSelectedAnswer(null)
-      setShowExplanation(false)
-      setExamComplete(false)
-      
-      toast.success('Practice started!', {
-        description: `${generatedQuestions.length} questions loaded`
-      })
+      if (loaded.length === 0) {
+        toast.info('No questions found', {
+          description: 'Upload and extract questions from PDFs in the Upload tab first'
+        })
+      }
     } catch (error) {
-      toast.error('Failed to generate questions')
+      toast.error('Failed to load questions')
     } finally {
       setLoading(false)
     }
+  }
+
+  const startPractice = (filterDomain?: string) => {
+    let questionsToUse = allQuestions
+
+    if (filterDomain) {
+      questionsToUse = allQuestions.filter(q => q.domain === filterDomain || q.domainId === filterDomain)
+    }
+
+    if (questionsToUse.length === 0) {
+      toast.error('No questions available', {
+        description: filterDomain 
+          ? `No questions found for this domain. Upload questions first.`
+          : 'Add questions from the Upload tab first'
+      })
+      return
+    }
+
+    const shuffled = [...questionsToUse].sort(() => Math.random() - 0.5)
+    const selected = shuffled.slice(0, Math.min(10, shuffled.length))
+    
+    setQuestions(selected)
+    setAnswers(new Array(selected.length).fill(null))
+    setPracticingAll(!filterDomain)
+    setCurrentIndex(0)
+    setSelectedAnswer(null)
+    setShowExplanation(false)
+    setExamComplete(false)
+    
+    toast.success('Practice started!', {
+      description: `${selected.length} questions loaded`
+    })
   }
 
   const handleAnswerSelect = (answer: number) => {
@@ -117,33 +139,95 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
     }
   }
 
-  if (!examMode) {
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Sparkle size={32} className="animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading questions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (questions.length === 0) {
+    const domains = Array.from(new Set(allQuestions.map(q => q.domain || q.domainId)))
+    
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Practice Exams</h1>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Practice Questions</h1>
           <p className="text-muted-foreground">
-            Test your knowledge with AI-generated questions
+            {allQuestions.length > 0 
+              ? `${allQuestions.length} questions available from your database`
+              : 'No questions available yet'
+            }
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {AZ204_DOMAINS.map(domain => (
-            <Card key={domain.id} className="p-6 hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-2">{domain.name}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{domain.description}</p>
-              <Badge variant="outline" className="mb-4">{domain.weight}</Badge>
-              <Button 
-                className="w-full" 
-                onClick={() => startPractice(domain.id)}
-                disabled={loading}
-              >
+        {allQuestions.length === 0 ? (
+          <Card className="p-8 text-center">
+            <FileText size={64} className="mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-semibold mb-2">No Questions Yet</h2>
+            <p className="text-muted-foreground mb-6">
+              Upload and extract questions from your PDF files in the Upload tab to get started with practice
+            </p>
+            <Button onClick={loadQuestions} variant="outline">
+              <Sparkle size={16} className="mr-2" />
+              Refresh
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <Card className="p-6 bg-gradient-to-br from-primary/10 to-accent/10">
+              <h2 className="text-xl font-semibold mb-4">Practice All Questions</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Practice from all {allQuestions.length} questions in random order
+              </p>
+              <Button onClick={() => startPractice()} className="w-full sm:w-auto">
                 <Play size={16} className="mr-2" weight="fill" />
-                Start Practice (10 Questions)
+                Start Practice (10 Random Questions)
               </Button>
             </Card>
-          ))}
-        </div>
+
+            {domains.length > 0 && (
+              <>
+                <div>
+                  <h2 className="text-2xl font-semibold mb-4">Practice by Domain</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {domains.map(domain => {
+                    const domainQuestions = allQuestions.filter(q => 
+                      q.domain === domain || q.domainId === domain
+                    )
+                    
+                    return (
+                      <Card key={domain} className="p-6 hover:shadow-lg transition-shadow">
+                        <h3 className="text-xl font-semibold mb-2 capitalize">{domain}</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          {domainQuestions.length} question{domainQuestions.length !== 1 ? 's' : ''} available
+                        </p>
+                        <Badge variant="outline" className="mb-4">
+                          {domainQuestions.filter(q => q.difficulty === 'easy').length} Easy / {' '}
+                          {domainQuestions.filter(q => q.difficulty === 'medium').length} Medium / {' '}
+                          {domainQuestions.filter(q => q.difficulty === 'hard').length} Hard
+                        </Badge>
+                        <Button 
+                          className="w-full" 
+                          onClick={() => startPractice(domain)}
+                          disabled={domainQuestions.length === 0}
+                        >
+                          <Play size={16} className="mr-2" weight="fill" />
+                          Practice {domain}
+                        </Button>
+                      </Card>
+                    )
+                  })}
+                </div>
+              </>
+            )}
+          </>
+        )}
       </div>
     )
   }
@@ -157,18 +241,25 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
     return (
       <div className="space-y-6">
         <Card className="p-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Exam Complete!</h2>
+          <h2 className="text-3xl font-bold mb-4">Practice Complete!</h2>
           <div className="text-6xl font-bold mb-4 text-primary">{Math.round(score)}%</div>
           <p className="text-xl mb-6">
             {correctAnswers} out of {questions.length} correct
           </p>
-          <div className="flex gap-4 justify-center">
-            <Button onClick={() => setExamMode(null)}>Back to Practice</Button>
+          <div className="flex gap-4 justify-center flex-wrap">
+            <Button onClick={() => {
+              setQuestions([])
+              setExamComplete(false)
+            }}>
+              <ArrowLeft size={16} className="mr-2" />
+              Back to Practice
+            </Button>
             <Button variant="outline" onClick={() => {
               setCurrentIndex(0)
               setShowExplanation(true)
               setExamComplete(false)
             }}>
+              <FileText size={16} className="mr-2" />
               Review Answers
             </Button>
           </div>
@@ -186,7 +277,8 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
         <h2 className="text-2xl font-semibold">
           Question {currentIndex + 1} of {questions.length}
         </h2>
-        <Button variant="outline" size="sm" onClick={() => setExamMode(null)}>
+        <Button variant="outline" size="sm" onClick={() => setQuestions([])}>
+          <ArrowLeft size={16} className="mr-2" />
           Exit
         </Button>
       </div>
@@ -194,6 +286,16 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
       <Progress value={progress_percent} className="h-2" />
 
       <Card className="p-8">
+        <div className="mb-4">
+          <Badge variant="outline" className="mr-2">{currentQuestion.domain || currentQuestion.domainId}</Badge>
+          <Badge variant={
+            currentQuestion.difficulty === 'easy' ? 'default' :
+            currentQuestion.difficulty === 'hard' ? 'destructive' : 'secondary'
+          }>
+            {currentQuestion.difficulty}
+          </Badge>
+        </div>
+
         {currentQuestion.scenario && (
           <div className="mb-6 p-4 bg-muted rounded-lg">
             <h3 className="font-semibold mb-2">Scenario:</h3>
@@ -259,7 +361,7 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
             </div>
 
             <Button onClick={handleNext}>
-              {currentIndex < questions.length - 1 ? 'Next Question' : 'Complete Exam'}
+              {currentIndex < questions.length - 1 ? 'Next Question' : 'Complete Practice'}
             </Button>
           </div>
         )}
