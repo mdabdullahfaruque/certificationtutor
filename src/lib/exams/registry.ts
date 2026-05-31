@@ -1,5 +1,6 @@
 import { ExamDefinition } from './types'
 import { AZ204_EXAM } from './az-204'
+import { AI900_EXAM } from './ai-900'
 
 /**
  * Central registry of all certification exams the app supports.
@@ -13,6 +14,7 @@ import { AZ204_EXAM } from './az-204'
  */
 export const EXAMS: ExamDefinition[] = [
   AZ204_EXAM,
+  AI900_EXAM,
   // Placeholder entries advertise upcoming exams without content yet.
   {
     id: 'az-104',

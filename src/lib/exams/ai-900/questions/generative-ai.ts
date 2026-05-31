@@ -1,0 +1,277 @@
+import { buildQuestions, QSeed } from './_builder'
+
+const seeds: QSeed[] = [
+  // ── Generative AI concepts ──────────────────────────────────────
+  {
+    id: 'gen-001', topicId: 'genai-concepts', difficulty: 'easy',
+    question: 'What best describes generative AI?',
+    options: [
+      'AI that only classifies existing data',
+      'AI that creates new original content such as text, code, or images',
+      'AI that detects anomalies in numbers',
+      'AI that compresses files',
+    ],
+    correctAnswer: 1,
+    explanation: 'Generative AI produces new original content (text, code, images, audio) from prompts.',
+  },
+  {
+    id: 'gen-002', topicId: 'genai-concepts', difficulty: 'easy',
+    question: 'Large language models (LLMs) are built primarily on which architecture?',
+    options: ['Transformer', 'K-means', 'Decision tree', 'Convolutional pooling'],
+    correctAnswer: 0,
+    explanation: 'LLMs are based on the Transformer architecture.',
+  },
+  {
+    id: 'gen-003', topicId: 'genai-concepts', difficulty: 'medium',
+    question: 'In generative AI, what is a "token"?',
+    options: [
+      'A security credential',
+      'A chunk of text (word or sub-word) the model processes',
+      'A type of GPU',
+      'A label in a dataset',
+    ],
+    correctAnswer: 1,
+    explanation: 'Tokens are the chunks of text (words/sub-words) that language models read and generate.',
+  },
+  {
+    id: 'gen-004', topicId: 'genai-concepts', difficulty: 'medium',
+    question: 'What is the instruction or input you give a generative AI model called?',
+    options: ['A label', 'A prompt', 'A token budget', 'A cluster'],
+    correctAnswer: 1,
+    explanation: 'The input/instruction you give the model is the prompt; its output is the completion/response.',
+  },
+  {
+    id: 'gen-005', topicId: 'genai-concepts', difficulty: 'hard',
+    question: 'What are embeddings used for in generative AI solutions?',
+    options: [
+      'Storing passwords',
+      'Representing text as numeric vectors that capture meaning/similarity',
+      'Rendering images',
+      'Compiling code',
+    ],
+    correctAnswer: 1,
+    explanation: 'Embeddings are numeric vectors that capture semantic meaning, enabling similarity search and grounding.',
+  },
+  {
+    id: 'gen-006', topicId: 'genai-concepts', difficulty: 'medium',
+    question: 'When a model produces confident but factually incorrect output, this is called:',
+    options: ['Overfitting', 'Hallucination', 'Clustering', 'Tokenization'],
+    correctAnswer: 1,
+    explanation: 'A hallucination is a plausible-sounding but incorrect output from a generative model.',
+  },
+  {
+    id: 'gen-007', topicId: 'genai-concepts', difficulty: 'easy',
+    question: 'How does an LLM fundamentally produce text?',
+    options: [
+      'By looking up answers in a fixed database',
+      'By predicting the next token based on context',
+      'By translating images',
+      'By clustering data points',
+    ],
+    correctAnswer: 1,
+    explanation: 'LLMs generate text by predicting the most likely next token given the preceding context.',
+  },
+
+  // ── Scenarios & improving output ────────────────────────────────
+  {
+    id: 'gen-008', topicId: 'genai-scenarios', difficulty: 'easy',
+    question: 'Which of the following is a common generative AI scenario?',
+    options: ['Summarizing a long report', 'Detecting faces in images', 'Predicting numeric house prices', 'Clustering customers'],
+    correctAnswer: 0,
+    explanation: 'Summarization is a classic generative AI scenario (along with drafting, coding, and chat).',
+  },
+  {
+    id: 'gen-009', topicId: 'genai-scenarios', difficulty: 'medium',
+    question: 'The practice of carefully crafting instructions to get better model output is called:',
+    options: ['Prompt engineering', 'Data labeling', 'Clustering', 'Tokenization'],
+    correctAnswer: 0,
+    explanation: 'Prompt engineering is designing clear prompts (with context, examples, constraints) to steer output.',
+  },
+  {
+    id: 'gen-010', topicId: 'genai-scenarios', difficulty: 'medium',
+    question: 'Supplying your own documents as context so the model answers from current, relevant data is known as:',
+    options: ['Grounding (retrieval-augmented generation)', 'Overfitting', 'Sentiment analysis', 'Object detection'],
+    correctAnswer: 0,
+    explanation: 'Grounding/RAG injects relevant data at query time so answers are accurate and current.',
+  },
+  {
+    id: 'gen-011', topicId: 'genai-scenarios', difficulty: 'hard',
+    question: 'Which approach requires the MOST effort and actually retrains the base model on your examples?',
+    options: ['Prompt engineering', 'Grounding (RAG)', 'Fine-tuning', 'Increasing temperature'],
+    correctAnswer: 2,
+    explanation: 'Fine-tuning further trains the model on your data — more effort than prompting or RAG.',
+  },
+  {
+    id: 'gen-012', topicId: 'genai-scenarios', difficulty: 'medium',
+    question: 'A company wants a chatbot to answer using its internal policy documents. Which technique best achieves accurate, grounded answers?',
+    options: ['Retrieval-augmented generation (RAG)', 'Clustering', 'Object detection', 'Image classification'],
+    correctAnswer: 0,
+    explanation: 'RAG retrieves relevant internal documents and supplies them as context, grounding the model\'s answers.',
+  },
+  {
+    id: 'gen-013', topicId: 'genai-scenarios', difficulty: 'easy',
+    question: 'Generating source code from a natural-language description is an example of:',
+    options: ['A generative AI scenario', 'Anomaly detection', 'Clustering', 'OCR'],
+    correctAnswer: 0,
+    explanation: 'Code generation from natural language is a common generative AI scenario.',
+  },
+  {
+    id: 'gen-014', topicId: 'genai-scenarios', difficulty: 'hard',
+    question: 'Which ordering from least to most effort is correct for improving generative AI output?',
+    options: [
+      'Fine-tuning → RAG → Prompt engineering',
+      'Prompt engineering → RAG (grounding) → Fine-tuning',
+      'RAG → Prompt engineering → Fine-tuning',
+      'Prompt engineering → Fine-tuning → RAG',
+    ],
+    correctAnswer: 1,
+    explanation: 'Prompt engineering is easiest, grounding/RAG is moderate, and fine-tuning requires the most effort.',
+  },
+
+  // ── Responsible generative AI ───────────────────────────────────
+  {
+    id: 'gen-015', topicId: 'genai-responsible', difficulty: 'medium',
+    question: 'Which Azure OpenAI feature helps detect and block harmful content in prompts and responses?',
+    options: ['Content filters / safety system', 'AutoML', 'Designer', 'Bounding boxes'],
+    correctAnswer: 0,
+    explanation: 'Azure OpenAI includes content filtering/safety systems to detect and block harmful content.',
+  },
+  {
+    id: 'gen-016', topicId: 'genai-responsible', difficulty: 'medium',
+    question: 'Keeping a person to review AI-generated decisions before they are acted on is an example of:',
+    options: ['Human oversight (human-in-the-loop)', 'Overfitting', 'Tokenization', 'Clustering'],
+    correctAnswer: 0,
+    explanation: 'Human-in-the-loop oversight supports accountability and safety for generative AI.',
+  },
+  {
+    id: 'gen-017', topicId: 'genai-responsible', difficulty: 'hard',
+    question: 'Which is a recommended way to reduce hallucinations in a generative AI app?',
+    options: [
+      'Remove all prompts',
+      'Ground the model with relevant, trusted data (RAG)',
+      'Increase randomness',
+      'Disable content filters',
+    ],
+    correctAnswer: 1,
+    explanation: 'Grounding the model with trusted, relevant data reduces hallucinations.',
+  },
+  {
+    id: 'gen-018', topicId: 'genai-responsible', difficulty: 'easy',
+    question: 'Telling users that content was produced by AI and may be inaccurate supports which responsible AI principle?',
+    options: ['Transparency', 'Clustering', 'Object detection', 'Regression'],
+    correctAnswer: 0,
+    explanation: 'Disclosing AI involvement and limitations supports transparency.',
+  },
+  {
+    id: 'gen-019', topicId: 'genai-responsible', difficulty: 'medium',
+    question: 'Do Microsoft\'s six responsible AI principles apply to generative AI?',
+    options: [
+      'No, generative AI is exempt',
+      'Yes, they still apply along with extra safeguards like content filtering',
+      'Only fairness applies',
+      'Only accountability applies',
+    ],
+    correctAnswer: 1,
+    explanation: 'The six principles still apply to generative AI, with additional safeguards for its specific risks.',
+  },
+
+  // ── Azure generative AI services ────────────────────────────────
+  {
+    id: 'gen-020', topicId: 'azure-genai-services', difficulty: 'easy',
+    question: 'Which Azure service provides access to OpenAI models like GPT and DALL·E with enterprise security and compliance?',
+    options: ['Azure OpenAI Service', 'Azure AI Vision', 'Azure Machine Learning Designer', 'Azure AI Speech'],
+    correctAnswer: 0,
+    explanation: 'Azure OpenAI Service offers OpenAI models (GPT, DALL·E, embeddings) with Azure security and compliance.',
+  },
+  {
+    id: 'gen-021', topicId: 'azure-genai-services', difficulty: 'medium',
+    question: 'Which Azure platform lets you build, evaluate, customize, and deploy generative AI applications end to end?',
+    options: ['Azure AI Foundry', 'Azure Storage', 'Azure DevOps', 'Azure Monitor'],
+    correctAnswer: 0,
+    explanation: 'Azure AI Foundry is the platform for building, evaluating, and deploying generative AI solutions.',
+  },
+  {
+    id: 'gen-022', topicId: 'azure-genai-services', difficulty: 'medium',
+    question: 'Where in Azure can you browse and deploy from a large collection of foundation models (Microsoft, OpenAI, open-source)?',
+    options: ['The Azure AI Foundry model catalog', 'Azure Blob Storage', 'Azure Key Vault', 'Azure CDN'],
+    correctAnswer: 0,
+    explanation: 'The model catalog in Azure AI Foundry lets you browse and deploy many foundation models.',
+  },
+  {
+    id: 'gen-023', topicId: 'azure-genai-services', difficulty: 'easy',
+    question: 'Which Azure OpenAI model family generates images from text prompts?',
+    options: ['DALL·E', 'GPT-3.5 text', 'Whisper transcription', 'Embeddings'],
+    correctAnswer: 0,
+    explanation: 'DALL·E generates images from text prompts in Azure OpenAI.',
+  },
+  {
+    id: 'gen-024', topicId: 'azure-genai-services', difficulty: 'hard',
+    question: 'Which statement best distinguishes Azure OpenAI Service from Azure AI Foundry?',
+    options: [
+      'Azure OpenAI is a development platform; Foundry is a single model',
+      'Azure OpenAI hosts OpenAI models; Azure AI Foundry is the broader platform (incl. model catalog) for building gen-AI apps',
+      'They are unrelated to AI',
+      'Foundry only does computer vision',
+    ],
+    correctAnswer: 1,
+    explanation: 'Azure OpenAI hosts the OpenAI models; Azure AI Foundry is the broader build/evaluate/deploy platform that includes the model catalog.',
+  },
+  {
+    id: 'gen-025', topicId: 'azure-genai-services', difficulty: 'medium',
+    question: 'A developer needs GPT-based chat completions with Azure governance, networking, and compliance. Which service should they choose?',
+    options: ['Azure OpenAI Service', 'Azure AI Vision', 'Custom Vision', 'Azure AI Face'],
+    correctAnswer: 0,
+    explanation: 'Azure OpenAI Service provides GPT chat completions within Azure\'s security and compliance boundary.',
+  },
+  {
+    id: 'gen-026', topicId: 'azure-genai-services', difficulty: 'easy',
+    question: 'Which Azure OpenAI capability turns text into numeric vectors for semantic search?',
+    options: ['Embeddings', 'DALL·E', 'OCR', 'Speech synthesis'],
+    correctAnswer: 0,
+    explanation: 'Embeddings models convert text into vectors used for semantic search and grounding.',
+  },
+  {
+    id: 'gen-027', topicId: 'genai-concepts', difficulty: 'medium',
+    question: 'Which task is a foundation model in a model catalog typically able to do without training from scratch?',
+    options: [
+      'Generate and summarize text out of the box',
+      'Only store files',
+      'Only run SQL queries',
+      'Only detect anomalies in numbers',
+    ],
+    correctAnswer: 0,
+    explanation: 'Foundation models are pretrained and can perform tasks like text generation and summarization out of the box.',
+  },
+  {
+    id: 'gen-028', topicId: 'genai-scenarios', difficulty: 'medium',
+    question: 'A "copilot" assistant embedded in an app to help users write and answer questions is an application of:',
+    options: ['Generative AI', 'Clustering', 'Object detection', 'Anomaly detection'],
+    correctAnswer: 0,
+    explanation: 'Copilot-style assistants are built on generative AI (LLMs).',
+  },
+  {
+    id: 'gen-029', topicId: 'genai-concepts', difficulty: 'hard',
+    question: 'Increasing a model\'s "temperature" setting generally does what?',
+    options: [
+      'Makes output more deterministic',
+      'Makes output more random/creative',
+      'Reduces token usage',
+      'Disables the model',
+    ],
+    correctAnswer: 1,
+    explanation: 'Higher temperature increases randomness/creativity; lower temperature makes output more focused and deterministic.',
+  },
+  {
+    id: 'gen-030', topicId: 'azure-genai-services', difficulty: 'hard',
+    question: 'A team wants to evaluate and compare multiple models, then deploy the best one for a gen-AI app. Which Azure offering is designed for this?',
+    options: ['Azure AI Foundry', 'Azure Queue Storage', 'Azure Key Vault', 'Azure Functions'],
+    correctAnswer: 0,
+    explanation: 'Azure AI Foundry supports building, evaluating, comparing, and deploying generative AI models/apps.',
+  },
+]
+
+export const generativeAiQuestions = buildQuestions(
+  'generative-ai',
+  'Describe features of generative AI workloads on Azure',
+  seeds,
+)
