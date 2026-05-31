@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 import { BookOpen, Play, CheckCircle, Clock } from '@phosphor-icons/react'
 import { UserProgress, Topic } from '@/lib/types'
-import { AZ204_DOMAINS } from '@/lib/az204-domains'
+import { useExam } from '@/lib/exams/ExamContext'
 import { generateTopicContent, generateFlashCards } from '@/lib/content-generator'
 import { toast } from 'sonner'
 
@@ -16,9 +16,15 @@ interface StudyViewProps {
 }
 
 export function StudyView({ progress, setProgress }: StudyViewProps) {
-  const [selectedDomain, setSelectedDomain] = useState(AZ204_DOMAINS[0])
+  const { exam } = useExam()
+  const domains = exam.domains
+  const [selectedDomain, setSelectedDomain] = useState(domains[0])
   const [loadingTopic, setLoadingTopic] = useState<string | null>(null)
   const [generatedTopics, setGeneratedTopics] = useState<Record<string, Topic>>({})
+
+  useEffect(() => {
+    setSelectedDomain(domains[0])
+  }, [exam.id])
 
   const handleStartTopic = async (topicTitle: string, index: number) => {
     const topicId = `${selectedDomain.id}-topic-${index}`
@@ -73,12 +79,12 @@ export function StudyView({ progress, setProgress }: StudyViewProps) {
       <div>
         <h1 className="text-3xl font-bold tracking-tight mb-2">Study Materials</h1>
         <p className="text-muted-foreground">
-          AI-generated content tailored to official AZ-204 exam objectives
+          AI-generated content tailored to official {exam.code} exam objectives
         </p>
       </div>
 
       <div className="flex gap-2 flex-wrap">
-        {AZ204_DOMAINS.map(domain => {
+        {domains.map(domain => {
           const completedCount = progress.completedTopics.filter(topicId => 
             topicId.startsWith(domain.id)
           ).length

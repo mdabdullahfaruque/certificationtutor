@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Toaster } from '@/components/ui/sonner'
 import { Sparkle, House, BookOpen, ClipboardText, Upload as UploadIcon, BookBookmark } from '@phosphor-icons/react'
 import { UserProgress } from '@/lib/types'
-import { AZ204_DOMAINS } from '@/lib/az204-domains'
+import { ExamProvider, useExam } from '@/lib/exams/ExamContext'
 import { toast } from 'sonner'
 
 import { DashboardView } from '@/components/DashboardView'
@@ -12,9 +12,11 @@ import { StudyView } from '@/components/StudyView'
 import { PracticeView } from '@/components/PracticeView'
 import { UploadView } from '@/components/UploadView'
 import { CheatSheetsView } from '@/components/CheatSheetsView'
+import { ExamSwitcher } from '@/components/ExamSwitcher'
 
-function App() {
-  const [progress, setProgress] = useKV<UserProgress>('user-progress-v2', {
+function AppInner() {
+  const { exam } = useExam()
+  const [progress, setProgress] = useKV<UserProgress>(`user-progress-${exam.id}`, {
     examDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     currentDay: 1,
     streak: 0,
@@ -87,12 +89,13 @@ function App() {
                 <Sparkle size={24} weight="fill" className="text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">AZ-204 Exam Mastery</h1>
-                <p className="text-xs text-muted-foreground">AI-Powered Azure Certification Prep</p>
+                <h1 className="text-xl font-bold">{exam.code} Exam Mastery</h1>
+                <p className="text-xs text-muted-foreground">{exam.fullName}</p>
               </div>
             </div>
             
             <div className="flex items-center gap-6">
+              <ExamSwitcher />
               <div className="text-right hidden sm:block">
                 <div className="text-xs text-muted-foreground">Exam in</div>
                 <div className="text-lg font-bold text-primary">{daysUntilExam} days</div>
@@ -161,16 +164,15 @@ function App() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
-              <h3 className="font-semibold mb-2">About AZ-204</h3>
+              <h3 className="font-semibold mb-2">About {exam.code}</h3>
               <p className="text-sm text-muted-foreground">
-                Microsoft Azure Developer Associate certification validates your expertise in designing, 
-                building, testing, and maintaining cloud applications.
+                {exam.description}
               </p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Exam Coverage</h3>
               <ul className="text-sm text-muted-foreground space-y-1">
-                {AZ204_DOMAINS.map(domain => (
+                {exam.domains.map(domain => (
                   <li key={domain.id}>• {domain.name} ({domain.weight})</li>
                 ))}
               </ul>
@@ -184,12 +186,20 @@ function App() {
             </div>
           </div>
           <div className="text-center text-sm text-muted-foreground border-t pt-6">
-            <p>AI-Powered Azure AZ-204 Certification Prep Platform</p>
+            <p>AI-Powered {exam.code} Certification Prep Platform</p>
             <p className="mt-2">Study smart. Practice hard. Pass confidently. 🚀</p>
           </div>
         </div>
       </footer>
     </div>
+  )
+}
+
+function App() {
+  return (
+    <ExamProvider>
+      <AppInner />
+    </ExamProvider>
   )
 }
 

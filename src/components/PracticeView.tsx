@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Play, CheckCircle, XCircle, FileText, Sparkle, ArrowLeft } from '@phosphor-icons/react'
 import { UserProgress, Question } from '@/lib/types'
 import { loadQuestionsFromMarkdown } from '@/lib/questions-db'
+import { useExam } from '@/lib/exams/ExamContext'
 import { toast } from 'sonner'
 
 interface PracticeViewProps {
@@ -16,6 +17,7 @@ interface PracticeViewProps {
 }
 
 export function PracticeView({ progress, setProgress }: PracticeViewProps) {
+  const { exam } = useExam()
   const [allQuestions, setAllQuestions] = useState<Question[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -28,15 +30,24 @@ export function PracticeView({ progress, setProgress }: PracticeViewProps) {
 
   useEffect(() => {
     loadQuestions()
-  }, [])
+  }, [exam.id])
 
   const loadQuestions = async () => {
     setLoading(true)
     try {
-      const loaded = await loadQuestionsFromMarkdown()
-      setAllQuestions(loaded)
-      
-      if (loaded.length === 0) {
+      const examQuestions = exam.questions ?? []
+      let combined = examQuestions
+      try {
+        const uploaded = await loadQuestionsFromMarkdown()
+        const existingIds = new Set(examQuestions.map((q) => q.id))
+        const extras = uploaded.filter((q) => !existingIds.has(q.id))
+        combined = [...examQuestions, ...extras]
+      } catch {
+        // Markdown bank is optional; ignore load failures.
+      }
+      setAllQuestions(combined)
+
+      if (combined.length === 0) {
         toast.info('No questions found', {
           description: 'Upload and extract questions from PDFs in the Upload tab first'
         })

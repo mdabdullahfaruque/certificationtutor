@@ -1,0 +1,128 @@
+import { ExamDomain } from '@/lib/exams/types'
+
+/**
+ * AZ-204 functional groups — aligned with the official "Skills measured as of
+ * January 14, 2026" outline on Microsoft Learn.
+ * Weights are taken directly from the published study guide.
+ */
+export const AZ204_DOMAINS: ExamDomain[] = [
+  {
+    id: 'develop-compute',
+    name: 'Develop Azure compute solutions',
+    weight: '25-30%',
+    description: 'Implement containerized solutions, Azure App Service web apps, and Azure Functions.',
+    topics: [
+      'Create and manage container images for solutions',
+      'Publish an image to Azure Container Registry',
+      'Run containers by using Azure Container Instances',
+      'Create solutions by using Azure Container Apps',
+      'Create an Azure App Service Web App',
+      'Configure and implement diagnostics and logging',
+      'Deploy code and containerized solutions',
+      'Configure settings including TLS, API settings, and service connections',
+      'Implement autoscaling',
+      'Configure deployment slots',
+      'Create and configure an Azure Functions app',
+      'Implement input and output bindings',
+      'Implement function triggers by using data operations, timers, and webhooks',
+    ],
+    examTips: [
+      'Know when to use Container Instances vs Container Apps vs App Service.',
+      'Deployment slot swap warms up the target and swaps slot-specific (sticky) settings last.',
+      'Function triggers and bindings are heavily tested — memorize direction (in/out) and the binding attributes.',
+      'Durable Functions patterns: function chaining, fan-out/fan-in, async HTTP API, monitor, human interaction.',
+      'App Service plan tier decides scaling, slots, and isolation (Free/Shared → no slots; Standard+ → slots & autoscale).',
+    ],
+    officialDocUrl: 'https://learn.microsoft.com/en-us/azure/app-service/',
+  },
+  {
+    id: 'develop-storage',
+    name: 'Develop for Azure storage',
+    weight: '15-20%',
+    description: 'Develop solutions that use Azure Cosmos DB and Azure Blob Storage.',
+    topics: [
+      'Perform operations on containers and items by using the SDK',
+      'Set the appropriate consistency level for operations',
+      'Implement change feed notifications',
+      'Set and retrieve properties and metadata',
+      'Perform operations on data by using the appropriate SDK',
+      'Implement storage policies and data lifecycle management',
+    ],
+    examTips: [
+      'Partition key choice drives scale — pick high cardinality, even access; avoid hot partitions.',
+      'Memorize the 5 consistency levels in order: Strong → Bounded Staleness → Session → Consistent Prefix → Eventual.',
+      'Change feed is persistent, ordered per partition, and does NOT capture deletes (use soft-delete TTL).',
+      'Blob access tiers: Hot, Cool, Cold, Archive; Archive is offline and needs rehydration.',
+      'Lifecycle management rules act on last-modified/last-access time at the rule level.',
+    ],
+    officialDocUrl: 'https://learn.microsoft.com/en-us/azure/cosmos-db/',
+  },
+  {
+    id: 'implement-security',
+    name: 'Implement Azure security',
+    weight: '15-20%',
+    description: 'Implement user authentication and authorization, and secure Azure solutions.',
+    topics: [
+      'Authenticate and authorize users by using the Microsoft identity platform',
+      'Authenticate and authorize users and apps by using Microsoft Entra ID',
+      'Create and implement shared access signatures',
+      'Implement solutions that interact with Microsoft Graph',
+      'Secure app configuration data by using Azure App Configuration or Azure Key Vault',
+      'Develop code that uses keys, secrets, and certificates stored in Azure Key Vault',
+      'Implement Managed Identities for Azure resources',
+    ],
+    examTips: [
+      'MSAL acquires tokens; know auth code flow (web apps) vs client credentials (daemon) vs on-behalf-of (APIs).',
+      'Managed identity: system-assigned (tied to one resource lifecycle) vs user-assigned (shareable).',
+      'Prefer managed identity + Key Vault references over storing secrets in app settings.',
+      'SAS types: user delegation (Entra-backed, most secure), service, and account SAS.',
+      'Key Vault soft-delete and purge protection are on by default; RBAC vs access policies for data plane.',
+    ],
+    officialDocUrl: 'https://learn.microsoft.com/en-us/azure/key-vault/',
+  },
+  {
+    id: 'monitor-optimize',
+    name: 'Monitor, troubleshoot, and optimize Azure solutions',
+    weight: '5-10%',
+    description: 'Implement caching and monitor/troubleshoot solutions using Azure Monitor Application Insights.',
+    topics: [
+      'Configure caching and expiration policies for Azure Cache for Redis',
+      'Implement secure and optimized application cache patterns',
+      'Monitor and analyze metrics, logs, and traces',
+      'Implement availability tests and alerts',
+      'Instrument an app or service to use Application Insights',
+    ],
+    examTips: [
+      'Cache-aside (lazy loading) is the default Redis pattern; set TTLs to avoid stale data.',
+      'Redis eviction policies: allkeys-lru, volatile-lru, allkeys-lfu, noeviction, etc.',
+      'Application Insights sampling reduces telemetry volume/cost; adaptive sampling is default for ASP.NET.',
+      'Availability tests: standard (URL ping) and custom TrackAvailability; alert on failures from multiple regions.',
+      'Use KQL in Log Analytics; metrics are near real-time, logs have ingestion latency.',
+    ],
+    officialDocUrl: 'https://learn.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview',
+  },
+  {
+    id: 'connect-consume',
+    name: 'Connect to and consume Azure services and third-party services',
+    weight: '20-25%',
+    description: 'Implement API Management and develop event-based and message-based solutions.',
+    topics: [
+      'Create an Azure API Management instance',
+      'Create and document APIs',
+      'Configure access to APIs',
+      'Implement policies for APIs',
+      'Implement solutions that use Azure Event Grid',
+      'Implement solutions that use Azure Event Hubs',
+      'Implement solutions that use Azure Service Bus',
+      'Implement solutions that use Azure Queue Storage queues',
+    ],
+    examTips: [
+      'Event Grid = reactive discrete events; Event Hubs = high-throughput telemetry streaming; Service Bus = enterprise messaging.',
+      'APIM policies live in inbound/backend/outbound/on-error scopes; use <base /> to inherit parent scope.',
+      'Service Bus features: sessions (FIFO), dead-letter queue, duplicate detection, topics/subscriptions with filters.',
+      'Event Hubs consumers use partitions + consumer groups + checkpoints; capture writes to Blob/Data Lake.',
+      'Queue Storage is simple/cheap (up to 64KB msgs); Service Bus queues add ordering, transactions, larger msgs.',
+    ],
+    officialDocUrl: 'https://learn.microsoft.com/en-us/azure/api-management/',
+  },
+]

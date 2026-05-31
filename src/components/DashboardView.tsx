@@ -2,9 +2,9 @@ import { Card } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Fire, Trophy, Target, Lightning, Brain, Calendar as CalendarIcon } from '@phosphor-icons/react'
+import { Fire, Trophy, Target, Lightning, Brain, Calendar as CalendarIcon, GraduationCap, ArrowSquareOut } from '@phosphor-icons/react'
 import { UserProgress } from '@/lib/types'
-import { AZ204_DOMAINS } from '@/lib/az204-domains'
+import { useExam } from '@/lib/exams/ExamContext'
 import { motion } from 'framer-motion'
 
 interface DashboardViewProps {
@@ -13,11 +13,13 @@ interface DashboardViewProps {
 }
 
 export function DashboardView({ progress }: DashboardViewProps) {
+  const { exam } = useExam()
+  const domains = exam.domains
   const daysUntilExam = Math.max(0, Math.ceil(
     (new Date(progress.examDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
   ))
   
-  const totalTopics = AZ204_DOMAINS.reduce((sum, domain) => sum + domain.topics.length, 0)
+  const totalTopics = domains.reduce((sum, domain) => sum + domain.topics.length, 0)
   const overallProgress = totalTopics > 0 ? (progress.completedTopics.length / totalTopics) * 100 : 0
   const readinessScore = Math.min(95, Math.round(overallProgress * 0.7 + progress.sessions.length * 2 + progress.streak * 0.5))
 
@@ -112,7 +114,7 @@ export function DashboardView({ progress }: DashboardViewProps) {
       <motion.div variants={item}>
         <h2 className="text-2xl font-semibold mb-4">Domain Progress</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {AZ204_DOMAINS.map((domain) => {
+          {domains.map((domain) => {
             const completedInDomain = progress.completedTopics.filter(topicId => 
               topicId.startsWith(domain.id)
             ).length
@@ -195,6 +197,49 @@ export function DashboardView({ progress }: DashboardViewProps) {
           </div>
         </Card>
       </motion.div>
+
+      {exam.resources && exam.resources.length > 0 && (
+        <motion.div variants={item}>
+          <Card className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <GraduationCap size={32} weight="fill" className="text-primary" />
+              <div>
+                <h2 className="text-xl font-semibold">Official Study Resources</h2>
+                <p className="text-sm text-muted-foreground">
+                  Curated Microsoft Learn paths, the free practice assessment, and the exam sandbox
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {exam.resources.map((resource) => (
+                <a
+                  key={resource.url}
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-start gap-3 p-3 rounded-lg border bg-background hover:border-primary/40 hover:shadow-sm transition-all"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm truncate group-hover:text-primary transition-colors">
+                        {resource.title}
+                      </span>
+                      <Badge variant="outline" className="text-[10px] capitalize shrink-0">
+                        {resource.type.replace('-', ' ')}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">{resource.description}</p>
+                  </div>
+                  <ArrowSquareOut
+                    size={16}
+                    className="text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-0.5"
+                  />
+                </a>
+              ))}
+            </div>
+          </Card>
+        </motion.div>
+      )}
     </motion.div>
   )
 }
